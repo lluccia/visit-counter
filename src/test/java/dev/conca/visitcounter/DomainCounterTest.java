@@ -15,32 +15,39 @@ public class DomainCounterTest {
     }
 
     @Test
-    void testUnvisitedDomainCountIsZero() {
-        assertThat(domainCounter.getCount("m.wikipedia.org")).isEqualTo(0);
+    void testNewCounterShouldBeEmpty() {
+        assertThat(domainCounter.getCountPerDomain())
+                .isEmpty();;
     }
 
     @Test
-    void testCanAddSiteCount() {
+    void testDomainCountCanBeIncremented() {
         domainCounter.increment("m.wikipedia.org", 1);
-        assertThat(domainCounter.getCount("m.wikipedia.org")).isEqualTo(1);
+
+        assertThat(domainCounter.getCountPerDomain())
+                .containsEntry("m.wikipedia.org", 1L);
 
         domainCounter.increment("m.wikipedia.org", 5);
-        assertThat(domainCounter.getCount("m.wikipedia.org")).isEqualTo(6);
+        assertThat(domainCounter.getCountPerDomain())
+                .containsEntry("m.wikipedia.org", 6L);;
     }
 
     @Test
-    void testSiteCountMustPropagateToSuperDomains() {
+    void testDomainCountShouldPropagateToParentDomains() {
         domainCounter.increment("m.wikipedia.org", 1);
 
-        assertThat(domainCounter.getCount("m.wikipedia.org")).isEqualTo(1);
-        assertThat(domainCounter.getCount("wikipedia.org")).isEqualTo(1);
-        assertThat(domainCounter.getCount("org")).isEqualTo(1);
+        assertThat(domainCounter.getCountPerDomain())
+                .containsEntry("m.wikipedia.org", 1L)
+                .containsEntry("wikipedia.org", 1L)
+                .containsEntry("org", 1L);
     }
 
     @Test
-    void testLeftPartsDoNotCountAsSubdomains() {
+    void testSubdomainsMissingParentLevelsAreNotCounted() {
         domainCounter.increment("m.wikipedia.org", 1);
 
-        assertThat(domainCounter.getCount("m.wikipedia")).isEqualTo(0);
+        assertThat(domainCounter.getCountPerDomain())
+                .doesNotContainKey("m.wikipedia")
+                .doesNotContainKey("m");
     }
 }
