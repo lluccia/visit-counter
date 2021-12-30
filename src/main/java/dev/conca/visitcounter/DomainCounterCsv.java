@@ -1,5 +1,6 @@
 package dev.conca.visitcounter;
 
+import java.io.PrintStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,10 +20,10 @@ public class DomainCounterCsv {
     }
 
     public List<String> getSortedCount() {
+        int countColumnWidth = domainCounter.getMaxCount().toString().length();
         return domainCounter.getCountPerDomain().entrySet().stream()
                 .sorted((d1, d2) -> Long.compare(d2.getValue(), d1.getValue()))
-                .map(d -> String.format("%d %s", d.getValue(), d.getKey()))
+                .map(d -> String.format("%" + countColumnWidth + "s %s", d.getValue(), d.getKey()))
                 .collect(Collectors.toList());
     }
-
 }
